@@ -80,6 +80,7 @@ protected:
 	virtual dense_matrix::ptr inner_prod_wide(const dense_matrix &m,
 			bulk_operate::const_ptr left_op, bulk_operate::const_ptr right_op,
 			matrix_layout_t out_layout) const;
+	virtual dense_matrix::ptr get_rows_bool(std::shared_ptr<col_vec> idxs) const;
 public:
 	static ptr create(size_t nrow, size_t ncol, matrix_layout_t layout,
 			const scalar_type &type, int num_nodes = -1, bool in_mem = true,
@@ -219,6 +220,13 @@ public:
 
 	/*
 	 * In these two versions, we get a large number of rows/cols from a matrix.
+	 * There are two cases for these two APIs:
+	 * the elements in `idxs' are integers to indicates the locations of
+	 * the wanted rows/cols;
+	 * the elements in `idxs' are booleans. In this case, the number of
+	 * elements in `idxs' needs to be the same as the number of rows/cols
+	 * of the matrix. TRUE means we will take the corresponding row/col from
+	 * the matrix.
 	 */
 	virtual dense_matrix::ptr get_cols(std::shared_ptr<col_vec> idxs) const;
 	virtual dense_matrix::ptr get_rows(std::shared_ptr<col_vec> idxs) const;
@@ -229,6 +237,18 @@ public:
 	 */
 	virtual dense_matrix::ptr get_cols(size_t start, size_t end) const;
 	virtual dense_matrix::ptr get_rows(size_t start, size_t end) const;
+
+	/*
+	 * This interface takes elements from the matrix and returns the elements
+	 * in a vector.
+	 * These are two cases for the API:
+	 * the elements in `locs' are booleans and `locs' has the same size
+	 * as the matrix. TRUE means we will take the corresponding element
+	 * from the matrix.
+	 * the elements in `locs' is a two-column matrix. Each row of `locs'
+	 * contains the location of a wanted element in the current matrix.
+	 */
+	virtual std::shared_ptr<col_vec> get(dense_matrix::ptr locs) const;
 
 	/*
 	 * This method creates a new matrix whose columns specified by `idxs' are

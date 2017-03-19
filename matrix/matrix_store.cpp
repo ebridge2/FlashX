@@ -341,6 +341,25 @@ bool matrix_store::share_data(const matrix_store &store) const
 		&& get_data_id() != INVALID_MAT_ID;
 }
 
+void matrix_append::write_async(local_matrix_store::const_ptr portion,
+		off_t seq_id)
+{
+	if (seq_id <= last_append) {
+		BOOST_LOG_TRIVIAL(error) << "Append a repeated portion";
+		return;
+	}
+
+	lock.lock();
+	off_t loc = seq_id - last_append - 1;
+	if (loc >= q.size()) {
+	}
+	lock.unlock();
+}
+
+void matrix_append::flush()
+{
+}
+
 }
 
 }
